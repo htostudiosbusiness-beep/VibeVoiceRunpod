@@ -4,7 +4,9 @@ import os
 
 from huggingface_hub import snapshot_download
 
-TTS_MODEL = os.getenv("VIBEVOICE_TTS_MODEL", "microsoft/VibeVoice-Realtime-0.5B")
+# HF repo id for build-time baking (distinct from the runtime path env
+# VIBEVOICE_TTS_MODEL, which points at the baked local dir).
+TTS_MODEL = os.getenv("VIBEVOICE_TTS_HF_REPO", "microsoft/VibeVoice-Realtime-0.5B")
 LOCAL_DIR = "/opt/models/vibevoice-realtime"
 
 print(f"Downloading {TTS_MODEL} -> {LOCAL_DIR} ...")
