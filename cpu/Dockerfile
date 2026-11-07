@@ -50,9 +50,9 @@ PY
 COPY *.py /app/
 COPY supervisord.conf /app/supervisord.conf
 
-# Bake TTS weights + whisper ASR weights into the image (uses cpu/requirements deps that
-# include faster-whisper and huggingface_hub).
-RUN python /app/preload.py
+# Bake TTS weights + whisper ASR weights into the image (network ON for this step only;
+# runtime stays HF_HUB_OFFLINE=1 via the base ENV so the droplet container never calls HF).
+RUN HF_HUB_OFFLINE=0 python /app/preload.py
 
 EXPOSE 8015
 CMD ["/usr/local/bin/supervisord", "-c", "/app/supervisord.conf"]
