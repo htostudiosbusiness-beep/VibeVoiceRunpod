@@ -5,3 +5,6 @@ numpy<2
 soundfile>=0.12
 mutagen>=1.47
 huggingface_hub>=0.24
+# Pinned: VibeVoice at HEAD requires exactly 4.51.3
+transformers==4.51.3
+accelerate>=1.0

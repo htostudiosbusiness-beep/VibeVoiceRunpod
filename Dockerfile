@@ -27,13 +27,14 @@ RUN pip install --upgrade pip \
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 
-# VibeVoice repo extra deps (transformers, diffusers, ...) — torch already satisfied.
-RUN pip install --no-deps -e "/opt/vibevoice[streamingtts]" \
+# VibeVoice repo extra deps — transformers pinned at 4.51.3 via requirements.txt
+# (older GenerationMixin import path + torch 2.4.1 compatibility).
+RUN HF_HUB_OFFLINE=1 pip install --no-deps -e "/opt/vibevoice[streamingtts]" \
     && python - <<'PY'
 import importlib
 import subprocess, sys
 
-required = ["transformers", "diffusers", "accelerate", "sentencepiece", "soundfile"]
+required = ["diffusers", "sentencepiece", "soundfile"]
 for pkg in required:
     try:
         importlib.import_module(pkg)
