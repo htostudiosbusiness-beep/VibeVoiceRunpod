@@ -8,3 +8,6 @@ huggingface_hub>=0.30,<1.0
 # Pinned: VibeVoice at HEAD requires exactly 4.51.3
 transformers==4.51.3
 accelerate>=1.0
+diffusers>=0.32
+sentencepiece
+tqdm

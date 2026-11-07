@@ -4,8 +4,14 @@ pydantic>=2.7
 httpx>=0.27
 supervisor>=4.2
 faster-whisper==1.1.0
+# Cap <1.0: transformers 4.51.3 (required by VibeVoice HEAD) demands hub >=0.30,<1.0.
+# Everything VibeVoice's import chain needs is listed here so a single pip resolve
+# cannot upgrade hub behind our back (diffusers pulled hub 1.33 in a later step).
 huggingface_hub>=0.30,<1.0
 soundfile>=0.12
-# Pinned: VibeVoice at HEAD requires exactly 4.51.3 (GenerationMixin import path + torch>=2.0 compat with our CPU wheel)
 transformers==4.51.3
 accelerate>=1.0
+diffusers>=0.32
+sentencepiece
+tqdm
+numpy<2

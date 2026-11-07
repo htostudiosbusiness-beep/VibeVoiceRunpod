@@ -36,18 +36,7 @@ RUN pip install -r /app/requirements.txt
 # VibeVoice repo extras minus deps already satisfied (torch, transformers pinned at
 # 4.51.3 via requirements.txt — newer transformers breaks GenerationMixin import
 # and demands torch>=2.6, incompatible with the CPU wheel).
-RUN HF_HUB_OFFLINE=1 pip install --no-deps -e /opt/vibevoice[streamingtts] \
-    && python - <<'PY'
-import importlib
-import subprocess, sys
-
-required = ["diffusers", "sentencepiece", "soundfile"]
-for pkg in required:
-    try:
-        importlib.import_module(pkg)
-    except ImportError:
-        subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=True)
-PY
+RUN pip install --no-deps -e /opt/vibevoice[streamingtts]
 
 COPY *.py /app/
 COPY supervisord.conf /app/supervisord.conf
@@ -55,6 +44,9 @@ COPY supervisord.conf /app/supervisord.conf
 # Bake TTS weights + whisper ASR weights into the image (network ON for this step only;
 # runtime stays HF_HUB_OFFLINE=1 via the base ENV so the droplet container never calls HF).
 RUN HF_HUB_OFFLINE=0 python /app/preload.py
+
+# Guard: after every install step, hub must still be <1.0 or transformers breaks.
+RUN python -c "import huggingface_hub, transformers; v=huggingface_hub.__version__; assert v[0]=='0', f'huggingface_hub {v} must be <1.0'; print('hub', v, 'transformers', transformers.__version__)"
 
 EXPOSE 8015
 CMD ["/usr/local/bin/supervisord", "-c", "/app/supervisord.conf"]

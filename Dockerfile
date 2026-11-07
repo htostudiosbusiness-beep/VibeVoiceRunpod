@@ -28,19 +28,12 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 
 # VibeVoice repo extra deps — transformers pinned at 4.51.3 via requirements.txt
-# (older GenerationMixin import path + torch 2.4.1 compatibility).
-RUN HF_HUB_OFFLINE=1 pip install --no-deps -e "/opt/vibevoice[streamingtts]" \
-    && python - <<'PY'
-import importlib
-import subprocess, sys
+# (older GenerationMixin import path + torch 2.4.1 compatibility). diffusers and
+# sentencepiece are in requirements.txt so the hub <1.0 cap protects them.
+RUN HF_HUB_OFFLINE=1 pip install --no-deps -e "/opt/vibevoice[streamingtts]"
 
-required = ["diffusers", "sentencepiece", "soundfile"]
-for pkg in required:
-    try:
-        importlib.import_module(pkg)
-    except ImportError:
-        subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=True)
-PY
+# Guard: hub must still be <1.0 or transformers 4.51.3 breaks at import.
+RUN python -c "import huggingface_hub, transformers; v=huggingface_hub.__version__; assert v[0]=='0', f'huggingface_hub {v} must be <1.0'; print('hub', v, 'transformers', transformers.__version__)"
 
 COPY handler.py /app/handler.py
 WORKDIR /app
