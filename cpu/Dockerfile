@@ -38,15 +38,18 @@ RUN pip install -r /app/requirements.txt
 # and demands torch>=2.6, incompatible with the CPU wheel).
 RUN pip install --no-deps -e /opt/vibevoice[streamingtts]
 
-COPY *.py /app/
-COPY supervisord.conf /app/supervisord.conf
+COPY preload.py /app/preload.py
 
 # Bake TTS weights + whisper ASR weights into the image (network ON for this step only;
 # runtime stays HF_HUB_OFFLINE=1 via the base ENV so the droplet container never calls HF).
+# Placed BEFORE the service-code COPY so service fixes don't re-download weights.
 RUN HF_HUB_OFFLINE=0 python /app/preload.py
 
 # Guard: after every install step, hub must still be <1.0 or transformers breaks.
 RUN python -c "import huggingface_hub, transformers; v=huggingface_hub.__version__; assert v[0]=='0', f'huggingface_hub {v} must be <1.0'; print('hub', v, 'transformers', transformers.__version__)"
+
+COPY gateway.py tts_service.py asr_service.py /app/
+COPY supervisord.conf /app/supervisord.conf
 
 EXPOSE 8015
 CMD ["/usr/local/bin/supervisord", "-c", "/app/supervisord.conf"]

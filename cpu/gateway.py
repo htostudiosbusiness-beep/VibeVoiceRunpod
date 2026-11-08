@@ -57,7 +57,8 @@ async def tts(req: Request) -> Any:
     resp = await ttsc.post(
         req.url.path,
         content=body,
-        headers={"content-type": req.headers.get("content-type", "application/json")},
+        headers={"content-type": req.headers.get("content-type", "application/json"),
+                 "authorization": req.headers.get("authorization", "")},
     )
     return Response(
         content=resp.content,
@@ -72,7 +73,8 @@ async def transcribe(req: Request) -> Any:
     resp = await asrc.post(
         req.url.path,
         content=body,
-        headers={"content-type": req.headers.get("content-type", "application/json")},
+        headers={"content-type": req.headers.get("content-type", "application/json"),
+                 "authorization": req.headers.get("authorization", "")},
     )
     return Response(
         content=resp.content,
