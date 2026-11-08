@@ -125,7 +125,7 @@ def _load_model() -> tuple[Any, Any]:
         _processor = VibeVoiceStreamingProcessor.from_pretrained(MODEL_NAME)
         _model = VibeVoiceStreamingForConditionalGenerationInference.from_pretrained(
             MODEL_NAME,
-            dtype=_torch_dtype(),
+            torch_dtype=_torch_dtype(),
             device_map="cpu",
             attn_implementation="sdpa",
             low_cpu_mem_usage=True,
